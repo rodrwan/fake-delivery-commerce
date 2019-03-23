@@ -1,0 +1,61 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: service
+data:
+  TOKEN: super_secure_token
+  DELIVERY_PORT: "5001"
+  DELIVERY_URL: "http://delivery:5001"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: delivery
+  labels:
+    run: delivery
+spec:
+  selector:
+    matchLabels:
+      run: delivery
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        run: delivery
+        version: v0.0.1
+    spec:
+      containers:
+        - name: delivery
+          image: docker.io/rodrwan/delivery:v0.0.1
+          resources:
+            requests:
+              cpu: 50m
+              memory: 50Mi
+            limits:
+              cpu: 100m
+              memory: 100Mi
+          ports:
+            - containerPort: 5001
+              name: http-5001
+          envFrom:
+            - configMapRef:
+                name: service
+          args:
+            - -port=$(DELIVERY_PORT)
+            - -token=$(TOKEN)
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: delivery
+  labels:
+    run: delivery
+spec:
+  type: LoadBalancer
+  ports:
+    - name: http-5001
+      port: 5001
+      protocol: TCP
+      targetPort: 5001
+  selector:
+    run: delivery
