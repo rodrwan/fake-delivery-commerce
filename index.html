@@ -1,0 +1,27 @@
+<html>
+    <head>
+        <script>
+            const id = '0ce494b0-85d8-4b0c-a894-595d8d07440c';
+            const token = 'fasdfadfa9fj987afsdf';
+            fetch('https://fakeprovider.herokuapp.com')
+            .then(res => res.json())
+            .then(res => {
+                const { id } = res.data[0]
+                fetch(`https://fakeprovider.herokuapp.com/cards/${id}/info`, {
+                    method: 'PATCH',
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({
+                        "card_number": "9871051151981433",
+                        "reference_id": "26244797",
+                        "exp_date": "07/21",
+                        "cvv": "123"
+                    })
+                })
+                .then(res => res.json())
+                .then(res => console.log(res))
+            })
+        </script>
+    </head>
+</html>
